@@ -1,0 +1,61 @@
+name: 发布学习网站
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 读取代码
+        uses: actions/checkout@v6
+
+      - name: 配置运行环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 运行自动测试
+        run: npm test
+
+      - name: 检查中文文案
+        run: npm run verify:copy
+
+      - name: 生成静态网站
+        run: npm run build:pages
+
+      - name: 配置 GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传静态网站
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: pages-dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: 发布 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

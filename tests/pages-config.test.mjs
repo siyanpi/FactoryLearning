@@ -23,3 +23,14 @@ test("GitHub Pages 静态构建使用仓库子路径", async () => {
   assert.match(html, /<div id="root"><\/div>/);
   assert.match(entry, /import LearningApp from "\.\.\/app\/LearningApp"/);
 });
+
+test("GitHub Pages 工作流先验证再发布", async () => {
+  const workflow = await readProjectFile(".github/workflows/deploy-pages.yml");
+
+  assert.match(workflow, /npm ci/);
+  assert.match(workflow, /npm test/);
+  assert.match(workflow, /npm run verify:copy/);
+  assert.match(workflow, /npm run build:pages/);
+  assert.match(workflow, /actions\/upload-pages-artifact@v4/);
+  assert.match(workflow, /actions\/deploy-pages@v4/);
+});
