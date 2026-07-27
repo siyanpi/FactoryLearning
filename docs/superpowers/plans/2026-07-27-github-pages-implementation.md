@@ -23,7 +23,7 @@
 
 **Files:**
 - Create: `index.html`
-- Create: `pages/main.tsx`
+- Create: `github-pages/main.tsx`
 - Create: `vite.pages.config.ts`
 - Create: `tests/pages-config.test.mjs`
 - Modify: `package.json`
@@ -50,7 +50,7 @@ test("GitHub Pages 静态构建使用仓库子路径", async () => {
   const packageJson = JSON.parse(await readProjectFile("package.json"));
   const viteConfig = await readProjectFile("vite.pages.config.ts");
   const html = await readProjectFile("index.html");
-  const entry = await readProjectFile("pages/main.tsx");
+  const entry = await readProjectFile("github-pages/main.tsx");
 
   assert.equal(
     packageJson.scripts["build:pages"],
@@ -59,6 +59,7 @@ test("GitHub Pages 静态构建使用仓库子路径", async () => {
   assert.match(viteConfig, /base:\s*"\/FactoryLearning\/"/);
   assert.match(viteConfig, /outDir:\s*"pages-dist"/);
   assert.match(html, /<div id="root"><\/div>/);
+  assert.match(html, /src="\/github-pages\/main\.tsx"/);
   assert.match(entry, /import LearningApp from "\.\.\/app\/LearningApp"/);
 });
 ```
@@ -67,7 +68,7 @@ test("GitHub Pages 静态构建使用仓库子路径", async () => {
 
 Run: `node --test tests/pages-config.test.mjs`
 
-Expected: FAIL，原因是 `vite.pages.config.ts`、`index.html` 或 `pages/main.tsx` 尚不存在。
+Expected: FAIL，原因是 `vite.pages.config.ts`、`index.html` 或 `github-pages/main.tsx` 尚不存在。
 
 - [ ] **Step 3: 新增静态网页入口**
 
@@ -87,12 +88,12 @@ Expected: FAIL，原因是 `vite.pages.config.ts`、`index.html` 或 `pages/main
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/pages/main.tsx"></script>
+    <script type="module" src="/github-pages/main.tsx"></script>
   </body>
 </html>
 ```
 
-`pages/main.tsx`：
+`github-pages/main.tsx`：
 
 ```tsx
 import { StrictMode } from "react";
@@ -156,7 +157,7 @@ Expected: 构建成功，生成 `pages-dist/index.html` 和 `pages-dist/assets/`
 - [ ] **Step 6: 提交静态入口**
 
 ```bash
-git add index.html pages/main.tsx vite.pages.config.ts tests/pages-config.test.mjs package.json .gitignore
+git add index.html github-pages/main.tsx vite.pages.config.ts tests/pages-config.test.mjs package.json .gitignore
 git commit -m "feat: add GitHub Pages static build"
 ```
 
